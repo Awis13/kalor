@@ -84,4 +84,4 @@ Handshake: `master:<device_code>#` — device code from the DP Remote mobile app
 
 ## License
 
-Private.
+[MIT](LICENSE)
