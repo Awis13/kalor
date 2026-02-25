@@ -178,6 +178,8 @@ export class DuepiClient {
     while (this.commandQueue.length > 0) {
       const item = this.commandQueue.shift()!;
       try {
+        // Реконнект если relay закрыл сокет между командами
+        await this.ensureConnected();
         const response = await this.sendRaw(item.cmd);
         item.resolve(response);
       } catch (err) {
