@@ -1,65 +1,123 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useStove } from "@/hooks/use-stove";
+import { useStoveStore } from "@/store/stove-store";
+import { AlarmBanner } from "@/components/alarms/alarm-banner";
+import { TemperatureDisplay } from "@/components/dashboard/temperature-display";
+import { TemperatureDial } from "@/components/dashboard/temperature-dial";
+import { StoveStatusBadge } from "@/components/dashboard/stove-status-badge";
+import { FumesDisplay } from "@/components/dashboard/fumes-display";
+import { PowerToggle } from "@/components/dashboard/power-toggle";
+import { PowerSelector } from "@/components/dashboard/power-selector";
+import { Flame, Wind, Loader2 } from "lucide-react";
+
+function ConnectingState() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col items-center justify-center gap-6 p-8 max-w-md mx-auto text-center min-h-[60vh]">
+      <div className="relative">
+        <Flame className="h-12 w-12 text-amber-500/30" />
+        <Loader2 className="absolute inset-0 h-12 w-12 text-amber-500 animate-spin" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">Connecting to stove...</h2>
+        <p className="text-sm text-muted-foreground">
+          Reaching cloud relay, reading sensors
+        </p>
+      </div>
+      <div className="flex gap-1.5">
+        <span className="h-2 w-2 rounded-full bg-amber-500 animate-bounce [animation-delay:0ms]" />
+        <span className="h-2 w-2 rounded-full bg-amber-500 animate-bounce [animation-delay:150ms]" />
+        <span className="h-2 w-2 rounded-full bg-amber-500 animate-bounce [animation-delay:300ms]" />
+      </div>
+    </div>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 p-8 max-w-md mx-auto text-center min-h-[60vh]">
+      <div className="rounded-full bg-destructive/10 p-4">
+        <Flame className="h-8 w-8 text-destructive" />
+      </div>
+      <h2 className="text-lg font-semibold">Connection Error</h2>
+      <p className="text-sm text-muted-foreground">{message}</p>
+      <p className="text-xs text-muted-foreground">
+        Will retry automatically every 12 seconds.
+      </p>
+      <button
+        onClick={onRetry}
+        className="mt-2 rounded-lg bg-amber-500 px-6 py-2 text-sm font-medium text-black transition-colors hover:bg-amber-400"
+      >
+        Retry Now
+      </button>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const { stove, error, sendCommand, isSending, pendingCommand } = useStove();
+  const fetchStatus = useStoveStore((s) => s.fetchStatus);
+
+  if (!stove && error) {
+    return <ErrorState message={error} onRetry={fetchStatus} />;
+  }
+
+  if (!stove) {
+    return <ConnectingState />;
+  }
+
+  return (
+    <div className="flex flex-col gap-3 p-4 max-w-md mx-auto">
+      {/* Аларм баннер */}
+      {stove.hasAlarm && (
+        <AlarmBanner
+          alarmCode={stove.alarmCode}
+          alarmText={stove.alarmText}
+          hasAlarm={stove.hasAlarm}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      )}
+
+      {/* Температура комнаты */}
+      <TemperatureDisplay
+        roomTemp={stove.roomTemp}
+        targetTemp={stove.targetTemp}
+        isOn={stove.isOn}
+      />
+
+      {/* Регулятор целевой температуры */}
+      <TemperatureDial
+        value={stove.targetTemp}
+        min={10}
+        max={35}
+        onChange={(temp) => sendCommand("set_temp", temp)}
+      />
+
+      {/* Статус + дым + вентилятор — в одну строку */}
+      <div className="flex gap-2">
+        <StoveStatusBadge status={stove.status} statusText={stove.statusText} />
+        <FumesDisplay fumesTemp={stove.fumesTemp} />
+        <div className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card p-3">
+          <Wind className="h-4 w-4 text-blue-400" />
+          <span className="text-sm font-semibold text-foreground">
+            {stove.fanSpeed}
+          </span>
+          <span className="text-xs text-muted-foreground">RPM</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      {/* Вкл/выкл */}
+      <PowerToggle
+        isOn={stove.isOn}
+        onToggle={() => sendCommand(stove.isOn ? "power_off" : "power_on")}
+        isSending={isSending && (pendingCommand === "power_on" || pendingCommand === "power_off")}
+      />
+
+      {/* Мощность */}
+      <PowerSelector
+        value={stove.powerLevel}
+        onChange={(level) => sendCommand("set_power", level)}
+        isSending={isSending && pendingCommand === "set_power"}
+      />
     </div>
   );
 }

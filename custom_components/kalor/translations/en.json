@@ -1,0 +1,45 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Kalor Stove",
+        "description": "Enter the connection details for your Kalor pellet stove. The device code is found in the DP Remote app.",
+        "data": {
+          "device_code": "Device Code",
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "device_code": "Unique code from DP Remote app (e.g., i6bd9cmf83)",
+          "host": "Cloud relay or local ESPLink IP",
+          "port": "TCP port (default: 3000)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the stove. Check the device code and network."
+    },
+    "abort": {
+      "already_configured": "This stove is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "room_temperature": { "name": "Room Temperature" },
+      "fumes_temperature": { "name": "Fumes Temperature" },
+      "exhaust_fan_speed": { "name": "Exhaust Fan Speed" },
+      "power_level_sensor": { "name": "Power Level" },
+      "pellet_feed_speed": { "name": "Pellet Feed Speed" },
+      "status": { "name": "Status" }
+    },
+    "binary_sensor": {
+      "alarm": { "name": "Alarm" }
+    },
+    "number": {
+      "power_level": { "name": "Power Level" }
+    },
+    "button": {
+      "reset_error": { "name": "Reset Error" }
+    }
+  }
+}
