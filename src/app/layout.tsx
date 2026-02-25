@@ -31,7 +31,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   userScalable: false,
-  themeColor: "#0a0a0a",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
 };
 
 export default function RootLayout({
@@ -40,12 +43,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){var t=localStorage.getItem('kalor-theme');
+          if(t==='light')document.documentElement.classList.remove('dark');})()
+        `}} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <main className="pt-14 pb-20">{children}</main>
+        <main className="fixed inset-0 overflow-y-auto pt-[calc(3rem+env(safe-area-inset-top))] pb-14">{children}</main>
         <BottomNav />
         <Toaster />
       </body>

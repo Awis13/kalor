@@ -1,10 +1,10 @@
 {
   "domain": "kalor",
   "name": "Kalor",
-  "codeowners": ["@awis"],
+  "codeowners": ["@Awis13"],
   "config_flow": true,
-  "documentation": "https://github.com/awis/ha-kalor",
+  "documentation": "https://github.com/Awis13/kalor",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/awis/ha-kalor/issues",
+  "issue_tracker": "https://github.com/Awis13/kalor/issues",
   "version": "1.0.0"
 }

@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useStoveStore } from "@/store/stove-store";
-import { Trash2, Info, Gauge, Cpu } from "lucide-react";
+import { useTheme } from "@/hooks/use-settings";
+import { Trash2, Info, Gauge, Cpu, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 
 const APP_VERSION = "0.1.0";
@@ -19,6 +21,7 @@ interface DeviceInfo {
 }
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
   const pollInterval = useStoveStore((s) => s.pollInterval);
   const setPollInterval = useStoveStore((s) => s.setPollInterval);
 
@@ -70,6 +73,24 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-4 p-4 max-w-md mx-auto">
       <h1 className="text-lg font-semibold">Settings</h1>
+
+      {/* Theme */}
+      <Card>
+        <CardContent className="flex items-center justify-between pt-6">
+          <div className="flex items-center gap-2">
+            {theme === "dark" ? (
+              <Moon className="h-4 w-4 text-primary" />
+            ) : (
+              <Sun className="h-4 w-4 text-primary" />
+            )}
+            <span className="text-sm font-medium">Dark Mode</span>
+          </div>
+          <Switch
+            checked={theme === "dark"}
+            onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+          />
+        </CardContent>
+      </Card>
 
       {/* Poll interval */}
       <Card>

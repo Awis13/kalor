@@ -51,6 +51,18 @@ scp -P 22222 -r custom_components/kalor root@<HA_IP>:/config/custom_components/k
 # Enter your device code from the DP Remote app
 ```
 
+## Docker
+
+```bash
+cp .env.example .env
+# edit .env — set your DUEPI_DEVICE_CODE
+
+docker compose up -d --build
+# http://localhost:3100
+```
+
+Healthcheck is built-in — `docker ps` will show the status.
+
 ## Duepi EVO Protocol
 
 Binary/ASCII over TCP. Each command:

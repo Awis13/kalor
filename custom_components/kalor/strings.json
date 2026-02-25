@@ -10,7 +10,7 @@
           "port": "Port"
         },
         "data_description": {
-          "device_code": "Unique code from DP Remote app (e.g., i6bd9cmf83)",
+          "device_code": "Unique code from DP Remote app (e.g., a1b2c3d4e5)",
           "host": "Cloud relay or local ESPLink IP",
           "port": "TCP port (default: 3000)"
         }
