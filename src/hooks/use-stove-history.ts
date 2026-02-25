@@ -91,9 +91,11 @@ export function useStoveHistory() {
     []
   );
 
-  // Загружаем историю при смене диапазона
+  // Загружаем историю при смене диапазона + авто-рефреш каждые 15 сек
   useEffect(() => {
     getHistory(range);
+    const interval = setInterval(() => getHistory(range), 15_000);
+    return () => clearInterval(interval);
   }, [range, getHistory]);
 
   return {
