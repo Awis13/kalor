@@ -55,13 +55,13 @@ scp -P 22222 -r custom_components/kalor root@<HA_IP>:/config/custom_components/k
 
 ```bash
 cp .env.example .env
-# отредактировать .env — вписать DUEPI_DEVICE_CODE
+# edit .env — set your DUEPI_DEVICE_CODE
 
 docker compose up -d --build
 # http://localhost:3100
 ```
 
-Healthcheck встроен — `docker ps` покажет статус.
+Healthcheck is built-in — `docker ps` will show the status.
 
 ## Duepi EVO Protocol
 

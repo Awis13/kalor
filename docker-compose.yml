@@ -12,9 +12,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    networks:
-      - server_internal
-
-networks:
-  server_internal:
-    external: true
