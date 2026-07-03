@@ -1,5 +1,8 @@
 # Kalor
 
+[![CI](https://github.com/Awis13/kalor/actions/workflows/ci.yml/badge.svg)](https://github.com/Awis13/kalor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Control app and Home Assistant integration for **Kalor Petit** pellet stove via Duepi EVO protocol.
 
 ```

@@ -1,88 +1,70 @@
-// Хук для управления расписанием печи
-// Хранит слоты в localStorage, проверяет необходимость включения/выключения
+// Hook for managing the stove heating schedule.
+// Slots are persisted in localStorage; checkSchedule decides whether the stove
+// should currently be on or off.
 
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import type { ScheduleSlot, StoveState } from "@/lib/agua-types";
+import { useLocalStorage } from "./use-local-storage";
 
 const STORAGE_KEY = "kalor-schedule";
 
-// Чтение из localStorage
-function loadSlots(): ScheduleSlot[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-// Запись в localStorage
-function saveSlots(slots: ScheduleSlot[]): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
-}
-
-// Генерация уникального ID для слота
+// Generate a unique ID for a slot.
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 export function useSchedule() {
-  const [slots, setSlots] = useState<ScheduleSlot[]>([]);
+  const [slots, setSlots] = useLocalStorage<ScheduleSlot[]>(STORAGE_KEY, []);
 
-  // Загрузка при монтировании
-  useEffect(() => {
-    setSlots(loadSlots());
-  }, []);
+  const addSlot = useCallback(
+    (slot: Omit<ScheduleSlot, "id">) => {
+      setSlots((prev) => [...prev, { ...slot, id: generateId() }]);
+    },
+    [setSlots],
+  );
 
-  // Синхронизация с localStorage при каждом изменении
-  useEffect(() => {
-    // Пропускаем первый рендер (пустой массив до загрузки)
-    if (typeof window === "undefined") return;
-    saveSlots(slots);
-  }, [slots]);
-
-  const addSlot = useCallback((slot: Omit<ScheduleSlot, "id">) => {
-    setSlots((prev) => [...prev, { ...slot, id: generateId() }]);
-  }, []);
-
-  const removeSlot = useCallback((id: string) => {
-    setSlots((prev) => prev.filter((s) => s.id !== id));
-  }, []);
+  const removeSlot = useCallback(
+    (id: string) => {
+      setSlots((prev) => prev.filter((s) => s.id !== id));
+    },
+    [setSlots],
+  );
 
   const updateSlot = useCallback(
     (id: string, updates: Partial<Omit<ScheduleSlot, "id">>) => {
       setSlots((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, ...updates } : s))
+        prev.map((s) => (s.id === id ? { ...s, ...updates } : s)),
       );
     },
-    []
+    [setSlots],
   );
 
-  const toggleSlot = useCallback((id: string) => {
-    setSlots((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
-    );
-  }, []);
+  const toggleSlot = useCallback(
+    (id: string) => {
+      setSlots((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s)),
+      );
+    },
+    [setSlots],
+  );
 
-  // Проверка: нужно ли сейчас включить/выключить печь
-  // Возвращает { shouldBeOn, matchingSlot } или null если расписание не активно
+  // Decide whether the stove should be on/off right now.
+  // Returns { shouldBeOn, matchingSlot }.
   const checkSchedule = useCallback(
     (
-      stove: StoveState
+      stove: StoveState,
     ): {
       shouldBeOn: boolean;
       matchingSlot: ScheduleSlot | null;
     } => {
       const now = new Date();
-      // dayOfWeek: 0=пн, 6=вс (как в типах)
+      // dayOfWeek: 0=Monday, 6=Sunday (matches the type definitions).
       const currentDay = (now.getDay() + 6) % 7;
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-      // Ищем активный слот для текущего времени
+      // Find an active slot for the current time.
       const activeSlot = slots.find((slot) => {
         if (!slot.enabled) return false;
         if (slot.dayOfWeek !== currentDay) return false;
@@ -100,10 +82,10 @@ export function useSchedule() {
         };
       }
 
-      // Нет активного слота — печь должна быть выключена (если управляется расписанием)
-      // Но только если есть хоть один enabled слот на сегодня
+      // No active slot — the stove should be off, but only if there is at least
+      // one enabled slot for today.
       const hasEnabledSlotsToday = slots.some(
-        (s) => s.enabled && s.dayOfWeek === currentDay
+        (s) => s.enabled && s.dayOfWeek === currentDay,
       );
 
       if (hasEnabledSlotsToday) {
@@ -113,14 +95,13 @@ export function useSchedule() {
         };
       }
 
-      // Нет слотов на сегодня — не вмешиваемся
-      // Возвращаем текущее состояние печи как "желаемое"
+      // No slots for today — do not interfere; keep the current stove state.
       return {
         shouldBeOn: stove.isOn,
         matchingSlot: null,
       };
     },
-    [slots]
+    [slots],
   );
 
   return {

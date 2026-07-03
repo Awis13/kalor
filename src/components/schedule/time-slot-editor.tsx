@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ScheduleSlot } from "@/lib/agua-types";
 import { DAYS_OF_WEEK } from "@/lib/agua-constants";
 import {
@@ -32,35 +32,16 @@ export function TimeSlotEditor({
   onCancel,
   open,
 }: TimeSlotEditorProps) {
-  const [dayOfWeek, setDayOfWeek] = useState(0);
-  const [startHour, setStartHour] = useState(8);
-  const [startMinute, setStartMinute] = useState(0);
-  const [endHour, setEndHour] = useState(22);
-  const [endMinute, setEndMinute] = useState(0);
-  const [targetTemp, setTargetTemp] = useState(21);
-  const [powerLevel, setPowerLevel] = useState(3);
-
-  // Заполняем форму при редактировании существующего слота
-  useEffect(() => {
-    if (slot) {
-      setDayOfWeek(slot.dayOfWeek);
-      setStartHour(slot.startHour);
-      setStartMinute(slot.startMinute);
-      setEndHour(slot.endHour);
-      setEndMinute(slot.endMinute);
-      setTargetTemp(slot.targetTemp);
-      setPowerLevel(slot.powerLevel);
-    } else {
-      // Значения по умолчанию для нового слота
-      setDayOfWeek(0);
-      setStartHour(8);
-      setStartMinute(0);
-      setEndHour(22);
-      setEndMinute(0);
-      setTargetTemp(21);
-      setPowerLevel(3);
-    }
-  }, [slot, open]);
+  // Initial state is derived from the slot prop. The parent remounts this
+  // component (via a key) whenever the slot or open state changes, so the
+  // form always starts from the right values.
+  const [dayOfWeek, setDayOfWeek] = useState(slot?.dayOfWeek ?? 0);
+  const [startHour, setStartHour] = useState(slot?.startHour ?? 8);
+  const [startMinute, setStartMinute] = useState(slot?.startMinute ?? 0);
+  const [endHour, setEndHour] = useState(slot?.endHour ?? 22);
+  const [endMinute, setEndMinute] = useState(slot?.endMinute ?? 0);
+  const [targetTemp, setTargetTemp] = useState(slot?.targetTemp ?? 21);
+  const [powerLevel, setPowerLevel] = useState(slot?.powerLevel ?? 3);
 
   const handleSave = () => {
     onSave({
@@ -84,7 +65,7 @@ export function TimeSlotEditor({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {/* Выбор дня */}
+          {/* Day selector */}
           <div className="flex flex-col gap-2">
             <Label>Day</Label>
             <div className="flex flex-wrap gap-1.5">
@@ -106,7 +87,7 @@ export function TimeSlotEditor({
             </div>
           </div>
 
-          {/* Время начала и конца */}
+          {/* Start and end time */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-2">
               <Label>Start Time</Label>
@@ -138,7 +119,7 @@ export function TimeSlotEditor({
             </div>
           </div>
 
-          {/* Целевая температура */}
+          {/* Target temperature */}
           <div className="flex flex-col gap-2">
             <Label>
               Target Temperature:{" "}
@@ -153,7 +134,7 @@ export function TimeSlotEditor({
             />
           </div>
 
-          {/* Уровень мощности */}
+          {/* Power level */}
           <div className="flex flex-col gap-2">
             <Label>Power Level</Label>
             <div className="flex gap-2">

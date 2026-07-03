@@ -5,7 +5,6 @@
 import * as net from "net";
 import {
   CMD,
-  STATE_FLAGS,
   ERROR_CODES,
   getStatusText,
   getStatusCode,

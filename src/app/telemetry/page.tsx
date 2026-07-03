@@ -5,7 +5,7 @@ import { useStoveHistory } from "@/hooks/use-stove-history";
 import { TelemetryGrid } from "@/components/telemetry/telemetry-grid";
 import { MultiChart } from "@/components/telemetry/multi-chart";
 import { RawRegistersTable } from "@/components/telemetry/raw-registers-table";
-import { Loader2, Activity } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function TelemetryPage() {
   const { stove } = useStove();

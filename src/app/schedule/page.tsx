@@ -67,6 +67,7 @@ export default function SchedulePage() {
       </button>
 
       <TimeSlotEditor
+        key={`${editingSlot?.id ?? "new"}-${editorOpen}`}
         open={editorOpen}
         slot={editingSlot ?? undefined}
         onSave={handleSave}
