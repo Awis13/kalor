@@ -26,13 +26,13 @@ export default function TelemetryPage() {
     <div className="flex flex-col gap-4 p-4 max-w-md mx-auto">
       <h1 className="text-lg font-semibold">Telemetry</h1>
 
-      {/* Сетка gauge-карточек */}
+      {/* Grid of gauge cards */}
       <TelemetryGrid registers={stove.rawRegisters} />
 
-      {/* Мультиграфик с переключением серий */}
+      {/* Multi-chart with series toggling */}
       <MultiChart data={history} />
 
-      {/* Сырые регистры */}
+      {/* Raw registers */}
       <RawRegistersTable registers={stove.rawRegisters} />
     </div>
   );

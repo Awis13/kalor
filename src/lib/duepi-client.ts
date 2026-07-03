@@ -1,6 +1,6 @@
-// Duepi EVO protocol клиент — TCP соединение через cloud relay
-// Протокол: ESC + "R" + cmd + checksum(2 hex) + "&"
-// Ответ: 10 байт ASCII
+// Duepi EVO protocol client — TCP connection via cloud relay
+// Protocol: ESC + "R" + cmd + checksum(2 hex) + "&"
+// Response: 10 bytes ASCII
 
 import * as net from "net";
 import {
@@ -15,13 +15,13 @@ import type { StoveState } from "./agua-types";
 const ESC = "\x1b";
 const RESPONSE_LENGTH = 10;
 const SOCKET_TIMEOUT = 5000;
-const COMMAND_DELAY = 200; // мс между командами
+const COMMAND_DELAY = 200; // ms between commands
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Checksum: сумма ASCII кодов "R" + cmd, & 0xFF, в hex (2 символа)
+// Checksum: sum of ASCII codes of "R" + cmd, & 0xFF, in hex (2 chars)
 function calcChecksum(cmd: string): string {
   const fullCmd = "R" + cmd;
   let sum = 0;
@@ -31,19 +31,19 @@ function calcChecksum(cmd: string): string {
   return (sum & 0xff).toString(16).padStart(2, "0").toUpperCase();
 }
 
-// Формирование полной команды: ESC + R + cmd + checksum + &
+// Build the full command: ESC + R + cmd + checksum + &
 function buildCommand(cmd: string): string {
   const checksum = calcChecksum(cmd);
   return ESC + "R" + cmd + checksum + "&";
 }
 
-// Команда для установки мощности: F00x0 где x = 0-5
+// Command to set power: F00x0 where x = 0-5
 function buildSetPowerCmd(level: number): string {
   const clamped = Math.max(0, Math.min(6, level));
   return `F00${clamped}0`;
 }
 
-// Команда для установки температуры: F2xx0 где xx = hex значение
+// Command to set temperature: F2xx0 where xx = hex value
 function buildSetTempCmd(temp: number): string {
   const clamped = Math.max(10, Math.min(35, Math.round(temp)));
   const hex = clamped.toString(16).padStart(2, "0").toUpperCase();
@@ -71,7 +71,7 @@ export class DuepiClient {
     this.config = config;
   }
 
-  // Подключение к серверу + отправка device code
+  // Connect to the server + send the device code
   private connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.connected && this.socket) {
@@ -104,15 +104,15 @@ export class DuepiClient {
         this.socket = socket;
         this.connected = true;
 
-        // Хендшейк: "master:" + deviceCode + "#"
-        // Снифнуто из DP Remote app
+        // Handshake: "master:" + deviceCode + "#"
+        // Sniffed from the DP Remote app
         const handshake = `master:${this.config.deviceCode}#`;
         socket.write(handshake, (err) => {
           if (err) {
             this.cleanup();
             reject(new Error("Failed to send device code: " + err.message));
           } else {
-            // Даём серверу время обработать device code
+            // Give the server time to process the device code
             setTimeout(() => resolve(), 500);
           }
         });
@@ -132,7 +132,7 @@ export class DuepiClient {
     this.connected = false;
   }
 
-  // Отправить команду и получить ответ
+  // Send a command and get the response
   private sendRaw(cmd: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.socket || !this.connected) {
@@ -148,7 +148,7 @@ export class DuepiClient {
 
       const onData = (data: Buffer) => {
         responseBuffer += data.toString("ascii");
-        // Ответ всегда 10 байт
+        // The response is always 10 bytes
         if (responseBuffer.length >= RESPONSE_LENGTH) {
           clearTimeout(timeout);
           this.socket?.removeListener("data", onData);
@@ -169,7 +169,7 @@ export class DuepiClient {
     });
   }
 
-  // Последовательная обработка команд
+  // Sequential command processing
   private async processQueue() {
     if (this.processing) return;
     this.processing = true;
@@ -177,7 +177,7 @@ export class DuepiClient {
     while (this.commandQueue.length > 0) {
       const item = this.commandQueue.shift()!;
       try {
-        // Реконнект если relay закрыл сокет между командами
+        // Reconnect if the relay closed the socket between commands
         await this.ensureConnected();
         const response = await this.sendRaw(item.cmd);
         item.resolve(response);
@@ -190,7 +190,7 @@ export class DuepiClient {
     this.processing = false;
   }
 
-  // Публичный метод: отправить команду через очередь
+  // Public method: send a command through the queue
   async sendCommand(cmd: string): Promise<string> {
     await this.ensureConnected();
 
@@ -206,7 +206,7 @@ export class DuepiClient {
     }
   }
 
-  // Парсинг 4-символьного hex из ответа (response[1:5])
+  // Parse the 4-char hex from the response (response[1:5])
   private parseValue(response: string): number {
     try {
       return parseInt(response.substring(1, 5), 16);
@@ -215,7 +215,7 @@ export class DuepiClient {
     }
   }
 
-  // Парсинг 8-символьного hex (response[1:9]) для статуса
+  // Parse the 8-char hex (response[1:9]) for status
   private parseState(response: string): number {
     try {
       return parseInt(response.substring(1, 9), 16);
@@ -224,22 +224,22 @@ export class DuepiClient {
     }
   }
 
-  // Чтение одного регистра
+  // Read a single register
   async readRegister(cmd: string): Promise<number> {
     const response = await this.sendCommand(cmd);
     return this.parseValue(response);
   }
 
-  // Чтение статуса (32-bit)
+  // Read status (32-bit)
   async readStatus(): Promise<number> {
     const response = await this.sendCommand(CMD.GET_STATUS);
     return this.parseState(response);
   }
 
-  // ========== Публичные методы ==========
+  // ========== Public methods ==========
 
-  // Получить полное состояние печи
-  // Команды идут ПОСЛЕДОВАТЕЛЬНО — серийный протокол, одна за другой
+  // Get the full stove state
+  // Commands run SEQUENTIALLY — serial protocol, one after another
   async getStoveState(): Promise<StoveState> {
     const statusRaw = this.parseState(await this.sendCommand(CMD.GET_STATUS));
     const roomTempRaw = await this.readRegister(CMD.GET_ROOM_TEMP);
@@ -251,7 +251,7 @@ export class DuepiClient {
     const setpointRaw = await this.readRegister(CMD.GET_SETPOINT);
 
     const roomTemp = roomTempRaw / 10;
-    const fumesTemp = fumesTempRaw; // уже в °C
+    const fumesTemp = fumesTempRaw; // already in °C
     const powerLevel = powerLevelRaw;
     const exhFanRPM = exhFanRaw * 10;
     const statusCode = getStatusCode(statusRaw);
@@ -264,13 +264,13 @@ export class DuepiClient {
       roomTemp,
       targetTemp: setpointRaw,
       fumesTemp,
-      waterTemp: 0, // Kalor Petit — воздушная печь, водяного контура нет
+      waterTemp: 0, // Kalor Petit — air stove, no water circuit
 
       powerLevel,
       fanSpeed: exhFanRPM,
 
       waterPressure: 0,
-      flamePower: pelletSpeedRaw, // скорость подачи пеллет ≈ мощность пламени
+      flamePower: pelletSpeedRaw, // pellet feed rate ≈ flame power
       pelletLoadTime: pelletSpeedRaw,
       cpuCounter: 0,
 
@@ -297,34 +297,34 @@ export class DuepiClient {
     };
   }
 
-  // Включить печь
+  // Turn the stove on
   async powerOn(): Promise<void> {
     await this.sendCommand(CMD.SET_POWER_ON);
   }
 
-  // Выключить печь
+  // Turn the stove off
   async powerOff(): Promise<void> {
     await this.sendCommand(CMD.SET_POWER_OFF);
   }
 
-  // Установить мощность (0-5, 6=auto)
+  // Set power level (0-5, 6=auto)
   async setPowerLevel(level: number): Promise<void> {
     const cmd = buildSetPowerCmd(level);
     await this.sendCommand(cmd);
   }
 
-  // Установить целевую температуру
+  // Set the target temperature
   async setTargetTemp(temp: number): Promise<void> {
     const cmd = buildSetTempCmd(temp);
     await this.sendCommand(cmd);
   }
 
-  // Сброс ошибки
+  // Reset error
   async resetError(): Promise<void> {
     await this.sendCommand(CMD.RESET_ERROR);
   }
 
-  // Закрыть соединение
+  // Close the connection
   disconnect() {
     this.cleanup();
     this.commandQueue = [];

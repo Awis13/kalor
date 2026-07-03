@@ -55,7 +55,7 @@ function SlotBlock({
     }
   }, []);
 
-  // Рассчитываем ширину блока (пропорционально 24 часам)
+  // Calculate the block width (proportional to 24 hours)
   const startFrac =
     (slot.startHour + slot.startMinute / 60) / 24;
   const endFrac =
@@ -80,7 +80,7 @@ function SlotBlock({
       <span className="truncate px-0.5">
         {formatTime(slot.startHour, slot.startMinute)}
       </span>
-      {/* Кнопка удаления для десктопа */}
+      {/* Delete button for desktop */}
       <button
         className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white group-hover:flex hover:bg-red-600 md:flex"
         onClick={(e) => {
@@ -97,7 +97,7 @@ function SlotBlock({
 export function WeekGrid({ schedule, onEditSlot, onDeleteSlot }: WeekGridProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      {/* Заголовок с часами */}
+      {/* Header with hours */}
       <div className="flex items-center gap-2">
         <div className="w-10 shrink-0" />
         <div className="relative flex-1">
@@ -111,7 +111,7 @@ export function WeekGrid({ schedule, onEditSlot, onDeleteSlot }: WeekGridProps) 
         </div>
       </div>
 
-      {/* Строки дней */}
+      {/* Day rows */}
       {DAYS_OF_WEEK.map((dayName, dayIndex) => {
         const day = schedule.find((d) => d.dayOfWeek === dayIndex);
         const slots = day?.slots ?? [];

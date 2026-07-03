@@ -1,4 +1,4 @@
-// Коды статусов печи Micronova
+// Micronova stove status codes
 export const STOVE_STATUSES: Record<number, string> = {
   0: "Off",
   1: "Ignition",
@@ -15,7 +15,7 @@ export const STOVE_STATUSES: Record<number, string> = {
   12: "Modulation ECO",
 };
 
-// Цвета статусов для бейджа
+// Status colors for the badge
 export const STATUS_COLORS: Record<number, string> = {
   0: "gray",
   1: "amber",
@@ -32,7 +32,7 @@ export const STATUS_COLORS: Record<number, string> = {
   12: "green",
 };
 
-// Ключи регистров (маппинг имён на rawRegisters из DuepiClient)
+// Register keys (mapping of names to rawRegisters from DuepiClient)
 export const REGISTER_KEYS = {
   STATUS: "status",
   ROOM_TEMP: "room_temp_c",
@@ -44,7 +44,7 @@ export const REGISTER_KEYS = {
   PELLET_SPEED: "pellet_speed",
 } as const;
 
-// Конфиг для gauge'ей телеметрии (Kalor Petit — воздушная печь)
+// Config for telemetry gauges (Kalor Petit — air stove)
 export const TELEMETRY_GAUGES = [
   {
     label: "Room",
@@ -54,9 +54,9 @@ export const TELEMETRY_GAUGES = [
     registerKey: "room_temp_c",
     decimals: 1,
     zones: [
-      { min: 0, max: 15, color: "#3b82f6" },   // синий — холодно
-      { min: 15, max: 25, color: "#22c55e" },   // зелёный — комфорт
-      { min: 25, max: 40, color: "#ef4444" },   // красный — жарко
+      { min: 0, max: 15, color: "#3b82f6" },   // blue — cold
+      { min: 15, max: 25, color: "#22c55e" },   // green — comfort
+      { min: 25, max: 40, color: "#ef4444" },   // red — hot
     ],
   },
   {
@@ -126,7 +126,7 @@ export const TELEMETRY_GAUGES = [
   },
 ] as const;
 
-// Дни недели
+// Days of the week
 export const DAYS_OF_WEEK = [
   "Monday",
   "Tuesday",
@@ -137,5 +137,5 @@ export const DAYS_OF_WEEK = [
   "Sunday",
 ] as const;
 
-// Интервал поллинга (мс)
+// Polling interval (ms)
 export const POLL_INTERVAL = 12_000;

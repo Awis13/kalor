@@ -19,7 +19,7 @@ export function Header() {
   const handleTap = useCallback(() => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
-      // Даблтап — включаем редактирование
+      // Double tap — enable editing
       setDraft(name);
       setEditing(true);
       setTimeout(() => inputRef.current?.select(), 10);

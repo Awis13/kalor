@@ -21,7 +21,7 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
   const padding = 2;
 
   const points = data
-    .slice(-30) // последние 30 точек
+    .slice(-30) // last 30 points
     .map((v, i, arr) => {
       const x = padding + (i / (arr.length - 1)) * (width - 2 * padding);
       const y =
@@ -46,7 +46,7 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export function SensorCard({ config, value, history }: SensorCardProps) {
-  // Определяем цвет для sparkline по текущей зоне
+  // Determine the sparkline color based on the current zone
   let sparkColor = "#6b7280";
   for (const zone of config.zones) {
     if (value >= zone.min && value <= zone.max) {

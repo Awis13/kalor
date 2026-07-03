@@ -28,10 +28,10 @@ export default function SettingsPage() {
   const [device, setDevice] = useState<DeviceInfo | null>(null);
   const [isLoadingDevice, setIsLoadingDevice] = useState(false);
 
-  // Интервал поллинга в секундах для UI
+  // Poll interval in seconds for the UI
   const pollSec = Math.round(pollInterval / 1000);
 
-  // Загрузка информации об устройстве
+  // Load device information
   useEffect(() => {
     async function fetchDevice() {
       setIsLoadingDevice(true);
@@ -44,7 +44,7 @@ export default function SettingsPage() {
           }
         }
       } catch {
-        // Не критично — просто не покажем инфо
+        // Not critical — we just won't show the info
       } finally {
         setIsLoadingDevice(false);
       }
@@ -52,17 +52,17 @@ export default function SettingsPage() {
     fetchDevice();
   }, []);
 
-  // Очистка истории (IndexedDB + localStorage)
+  // Clear history (IndexedDB + localStorage)
   const handleClearHistory = async () => {
     try {
-      // Очищаем IndexedDB
+      // Clear IndexedDB
       const dbs = await window.indexedDB.databases();
       for (const db of dbs) {
         if (db.name?.includes("kalor")) {
           window.indexedDB.deleteDatabase(db.name);
         }
       }
-      // Очищаем алармы из localStorage
+      // Clear alarms from localStorage
       localStorage.removeItem("kalor-alarms");
       toast.success("History cleared");
     } catch {

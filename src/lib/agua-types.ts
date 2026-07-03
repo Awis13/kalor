@@ -1,42 +1,42 @@
-// Типы для Kalor stove controller
+// Types for the Kalor stove controller
 
-// Состояние печи для фронтенда
+// Stove state for the frontend
 export interface StoveState {
-  // Основные параметры
+  // Core parameters
   status: number;
   statusText: string;
   isOn: boolean;
 
-  // Температуры
+  // Temperatures
   roomTemp: number;
   targetTemp: number;
   fumesTemp: number;
   waterTemp: number;
 
-  // Управление
+  // Controls
   powerLevel: number;
   fanSpeed: number;
 
-  // Расширенная телеметрия
+  // Extended telemetry
   waterPressure: number;
   flamePower: number;
   pelletLoadTime: number;
   cpuCounter: number;
 
-  // Аларм
+  // Alarm
   alarmCode: number;
   alarmText: string;
   hasAlarm: boolean;
 
-  // Мета
+  // Meta
   isOnline: boolean;
   lastUpdate: number; // unix timestamp
 
-  // Все сырые регистры для телеметрии
+  // All raw registers for telemetry
   rawRegisters: Record<string, number>;
 }
 
-// Параметры для телеметрии gauge
+// Parameters for a telemetry gauge
 export interface GaugeZone {
   min: number;
   max: number;
@@ -53,10 +53,10 @@ export interface GaugeConfig {
   decimals?: number;
 }
 
-// Расписание
+// Schedule
 export interface ScheduleSlot {
   id: string;
-  dayOfWeek: number; // 0=пн, 6=вс
+  dayOfWeek: number; // 0=Mon, 6=Sun
   startHour: number;
   startMinute: number;
   endHour: number;
@@ -72,7 +72,7 @@ export interface ScheduleDay {
   slots: ScheduleSlot[];
 }
 
-// История
+// History
 export interface HistoryEntry {
   timestamp: number;
   roomTemp: number;

@@ -1,5 +1,5 @@
-// Zustand стор для управления состоянием печи
-// Поллинг /api/stove/status, отправка команд через /api/stove/command
+// Zustand store for managing the stove state
+// Polls /api/stove/status, sends commands via /api/stove/command
 
 import { create } from "zustand";
 import type { StoveState } from "@/lib/agua-types";
@@ -12,9 +12,9 @@ interface StoveStore {
   isPolling: boolean;
   pollInterval: number;
 
-  // Какая команда сейчас в полёте (null = ничего)
+  // Which command is currently in flight (null = none)
   pendingCommand: string | null;
-  // Optimistic значения — показываем сразу, до ответа сервера
+  // Optimistic values — shown immediately, before the server responds
   optimistic: {
     isOn?: boolean;
     powerLevel?: number;
@@ -47,7 +47,7 @@ export const useStoveStore = create<StoveStore>((set, get) => ({
         throw new Error(data.error || `HTTP ${res.status}`);
       }
       const stove: StoveState = await res.json();
-      // Сбрасываем optimistic только если нет команды в полёте
+      // Reset optimistic only if no command is in flight
       const updates: Partial<StoveStore> = { stove, error: null };
       if (!get().pendingCommand) {
         updates.optimistic = {};
@@ -63,7 +63,7 @@ export const useStoveStore = create<StoveStore>((set, get) => ({
   },
 
   sendCommand: async (command: string, value?: number) => {
-    // Optimistic update — моментальная реакция UI
+    // Optimistic update — instant UI reaction
     const opt: StoveStore["optimistic"] = {};
     if (command === "power_on") opt.isOn = true;
     if (command === "power_off") opt.isOn = false;
@@ -82,7 +82,7 @@ export const useStoveStore = create<StoveStore>((set, get) => ({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || `HTTP ${res.status}`);
       }
-      // Обновляем статус с сервера
+      // Refresh status from the server
       await get().fetchStatus();
     } catch (err) {
       const message =

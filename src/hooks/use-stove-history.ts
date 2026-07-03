@@ -1,5 +1,5 @@
-// Хук для записи и чтения истории температуры из IndexedDB
-// Записывает показания каждый poll tick, читает по диапазону
+// Hook for recording and reading temperature history from IndexedDB
+// Records readings on every poll tick, reads by range
 
 "use client";
 
@@ -10,7 +10,7 @@ import type { HistoryEntry } from "@/lib/agua-types";
 
 type HistoryRange = "1H" | "24H" | "7D" | "30D";
 
-// Маппинг диапазонов в миллисекунды
+// Map ranges to milliseconds
 const RANGE_MS: Record<HistoryRange, number> = {
   "1H": 60 * 60 * 1000,
   "24H": 24 * 60 * 60 * 1000,
@@ -18,7 +18,7 @@ const RANGE_MS: Record<HistoryRange, number> = {
   "30D": 30 * 24 * 60 * 60 * 1000,
 };
 
-// Максимальный возраст записей — 31 день
+// Maximum age of entries — 31 days
 const MAX_AGE_MS = 31 * 24 * 60 * 60 * 1000;
 
 export function useStoveHistory() {
@@ -28,11 +28,11 @@ export function useStoveHistory() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const lastRecordedRef = useRef<number>(0);
 
-  // Записываем показания при каждом обновлении stove
+  // Record readings on every stove update
   useEffect(() => {
     if (!stove) return;
 
-    // Не записываем чаще чем раз в 5 секунд (защита от дублей)
+    // Do not record more often than once every 5 seconds (dedup guard)
     const now = Date.now();
     if (now - lastRecordedRef.current < 5000) return;
     lastRecordedRef.current = now;
@@ -54,7 +54,7 @@ export function useStoveHistory() {
     );
   }, [stove]);
 
-  // Периодическая очистка старых записей (раз в час)
+  // Periodic cleanup of old entries (once an hour)
   useEffect(() => {
     const cleanup = () => {
       const cutoff = Date.now() - MAX_AGE_MS;
@@ -63,14 +63,14 @@ export function useStoveHistory() {
       );
     };
 
-    // Очистка при монтировании
+    // Cleanup on mount
     cleanup();
 
     const interval = setInterval(cleanup, 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Загрузить историю по выбранному диапазону
+  // Load history for the selected range
   const getHistory = useCallback(
     async (selectedRange: HistoryRange): Promise<HistoryEntry[]> => {
       setIsLoadingHistory(true);
@@ -91,7 +91,7 @@ export function useStoveHistory() {
     []
   );
 
-  // Загружаем историю при смене диапазона + авто-рефреш каждые 15 сек
+  // Load history on range change + auto-refresh every 15 sec
   useEffect(() => {
     getHistory(range);
     const interval = setInterval(() => getHistory(range), 15_000);

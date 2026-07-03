@@ -1,4 +1,4 @@
-"""Button entity: сброс ошибки Kalor."""
+"""Button entity: reset Kalor error."""
 
 from __future__ import annotations
 
@@ -17,24 +17,24 @@ async def async_setup_entry(
     entry: KalorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Создание button entity."""
+    """Create the button entity."""
     async_add_entities([KalorResetErrorButton(entry.runtime_data)])
 
 
 class KalorResetErrorButton(KalorEntity, ButtonEntity):
-    """Кнопка сброса ошибки печи."""
+    """Button to reset the stove error."""
 
     _attr_translation_key = "reset_error"
 
     def __init__(self, coordinator: KalorCoordinator) -> None:
-        """Инициализация button entity."""
+        """Initialize the button entity."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.config_entry.unique_id}-reset_error"
 
     async def async_press(self) -> None:
-        """Сбросить ошибку."""
+        """Reset the error."""
         try:
             await self.coordinator.client.async_reset_error()
         except (DuepiConnectionError, DuepiCommandError) as err:
-            raise HomeAssistantError(f"Ошибка сброса аларма: {err}") from err
+            raise HomeAssistantError(f"Failed to reset alarm: {err}") from err
         await self.coordinator.async_request_refresh()

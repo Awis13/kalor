@@ -1,4 +1,4 @@
-"""Binary sensor для алармов Kalor."""
+"""Binary sensor for Kalor alarms."""
 
 from __future__ import annotations
 
@@ -18,31 +18,31 @@ async def async_setup_entry(
     entry: KalorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Создание binary sensor."""
+    """Create the binary sensor."""
     async_add_entities([KalorAlarmSensor(entry.runtime_data)])
 
 
 class KalorAlarmSensor(KalorEntity, BinarySensorEntity):
-    """Binary sensor: активна ли ошибка на печи."""
+    """Binary sensor: whether an error is active on the stove."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_translation_key = "alarm"
 
     def __init__(self, coordinator: KalorCoordinator) -> None:
-        """Инициализация alarm sensor."""
+        """Initialize the alarm sensor."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.config_entry.unique_id}-alarm"
 
     @property
     def is_on(self) -> bool | None:
-        """True если есть активная ошибка."""
+        """True if there is an active error."""
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.has_alarm
 
     @property
     def extra_state_attributes(self) -> dict[str, str | int] | None:
-        """Дополнительные атрибуты: код и текст ошибки."""
+        """Extra attributes: error code and error text."""
         if self.coordinator.data is None:
             return None
         return {

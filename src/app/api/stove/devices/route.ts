@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// Duepi — одно устройство из env
+// Duepi — a single device from env
 export async function GET() {
   return NextResponse.json({
     devices: [

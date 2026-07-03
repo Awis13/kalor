@@ -1,4 +1,4 @@
-"""Интеграция Kalor для Home Assistant."""
+"""Kalor integration for Home Assistant."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ PLATFORMS: list[Platform] = [
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: KalorConfigEntry) -> bool:
-    """Настройка Kalor из config entry."""
+    """Set up Kalor from a config entry."""
     client = DuepiClient(
         host=entry.data.get("host", DEFAULT_HOST),
         port=entry.data.get("port", DEFAULT_PORT),
@@ -35,7 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: KalorConfigEntry) -> boo
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: KalorConfigEntry) -> bool:
-    """Выгрузка Kalor."""
+    """Unload Kalor."""
     result = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if result:
         await entry.runtime_data.client.disconnect()

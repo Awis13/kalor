@@ -6,7 +6,7 @@ interface TemperatureDialProps {
   value: number;
   min: number;
   max: number;
-  onChange: (v: number) => void; // вызывается только при отпускании (drag end)
+  onChange: (v: number) => void; // called only on release (drag end)
 }
 
 const CENTER = 120;
@@ -62,7 +62,7 @@ export function TemperatureDial({
 }: TemperatureDialProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  // Локальное значение при драге — не шлём API на каждый пиксель
+  // Local value during drag — don't call the API on every pixel
   const [dragValue, setDragValue] = useState<number | null>(null);
 
   const displayValue = dragValue ?? value;
@@ -95,7 +95,7 @@ export function TemperatureDial({
     [angleToValue]
   );
 
-  // При отпускании — коммитим значение в API
+  // On release — commit the value to the API
   const commitValue = useCallback(() => {
     if (dragValue !== null && dragValue !== value) {
       onChange(dragValue);
@@ -150,7 +150,7 @@ export function TemperatureDial({
   const currentAngle = valueToAngle(displayValue);
   const knobPos = polarToCartesian(CENTER, CENTER, RADIUS, currentAngle);
 
-  // Тик-марки
+  // Tick marks
   const ticks = [];
   const tickCount = max - min;
   for (let i = 0; i <= tickCount; i++) {
@@ -173,7 +173,7 @@ export function TemperatureDial({
       />
     );
 
-    // Числа на мажорных тиках
+    // Numbers on major ticks
     if (isMajor) {
       const labelR = RADIUS - 32;
       const lp = polarToCartesian(CENTER, CENTER, labelR, tickAngle);
@@ -209,14 +209,14 @@ export function TemperatureDial({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Градиент для дуги значения */}
+        {/* Gradient for the value arc */}
         <defs>
           <linearGradient id="dialGrad" x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#3b82f6" />
             <stop offset="50%" stopColor="#f59e0b" />
             <stop offset="100%" stopColor="#ef4444" />
           </linearGradient>
-          {/* Свечение вокруг ручки */}
+          {/* Glow around the knob */}
           <filter id="knobGlow">
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
@@ -226,7 +226,7 @@ export function TemperatureDial({
           </filter>
         </defs>
 
-        {/* Фоновая дуга */}
+        {/* Background arc */}
         <path
           d={describeArc(CENTER, CENTER, RADIUS, START_ANGLE, END_ANGLE)}
           fill="none"
@@ -236,7 +236,7 @@ export function TemperatureDial({
           opacity={0.4}
         />
 
-        {/* Дуга значения */}
+        {/* Value arc */}
         {displayValue > min && (
           <path
             d={describeArc(CENTER, CENTER, RADIUS, START_ANGLE, currentAngle)}
@@ -247,10 +247,10 @@ export function TemperatureDial({
           />
         )}
 
-        {/* Тик-марки и числа */}
+        {/* Tick marks and numbers */}
         {ticks}
 
-        {/* Ручка */}
+        {/* Knob */}
         <circle
           cx={knobPos.x}
           cy={knobPos.y}
@@ -261,7 +261,7 @@ export function TemperatureDial({
           filter="url(#knobGlow)"
         />
 
-        {/* Центральный текст */}
+        {/* Center text */}
         <text
           x={CENTER}
           y={CENTER - 8}

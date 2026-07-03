@@ -1,4 +1,4 @@
-"""Сенсоры Kalor — температуры, обороты, мощность, статус."""
+"""Kalor sensors — temperatures, fan speed, power, status."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from .entity import KalorEntity
 
 @dataclass(frozen=True, kw_only=True)
 class KalorSensorDescription(SensorEntityDescription):
-    """Описание сенсора с лямбдой для извлечения значения."""
+    """Sensor description with a lambda to extract the value."""
 
     value_fn: Callable[[StoveData], float | int | str | None]
 
@@ -79,7 +79,7 @@ async def async_setup_entry(
     entry: KalorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Создание всех сенсоров."""
+    """Create all sensors."""
     coordinator = entry.runtime_data
     async_add_entities(
         KalorSensor(coordinator, desc) for desc in SENSOR_DESCRIPTIONS
@@ -87,7 +87,7 @@ async def async_setup_entry(
 
 
 class KalorSensor(KalorEntity, SensorEntity):
-    """Сенсор Kalor."""
+    """Kalor sensor."""
 
     entity_description: KalorSensorDescription
 
@@ -96,7 +96,7 @@ class KalorSensor(KalorEntity, SensorEntity):
         coordinator: KalorCoordinator,
         description: KalorSensorDescription,
     ) -> None:
-        """Инициализация сенсора."""
+        """Initialize the sensor."""
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = (
@@ -105,7 +105,7 @@ class KalorSensor(KalorEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | int | str | None:
-        """Значение сенсора из данных координатора."""
+        """Sensor value from the coordinator data."""
         if self.coordinator.data is None:
             return None
         return self.entity_description.value_fn(self.coordinator.data)

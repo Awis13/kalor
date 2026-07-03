@@ -13,7 +13,7 @@ export default function SchedulePage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<ScheduleSlot | null>(null);
 
-  // Конвертируем плоский массив слотов в ScheduleDay[] для WeekGrid
+  // Convert the flat slots array into ScheduleDay[] for WeekGrid
   const schedule: ScheduleDay[] = useMemo(() => {
     return DAYS_OF_WEEK.map((label, i) => ({
       dayOfWeek: i,

@@ -1,4 +1,4 @@
-"""Координатор обновлений Kalor — поллинг печи каждые 12 секунд."""
+"""Kalor update coordinator — polls the stove every 12 seconds."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ type KalorConfigEntry = ConfigEntry[KalorCoordinator]
 
 
 class KalorCoordinator(DataUpdateCoordinator[StoveData]):
-    """Координатор: поллинг печи через DuepiClient."""
+    """Coordinator: polls the stove via DuepiClient."""
 
     config_entry: KalorConfigEntry
     client: DuepiClient
@@ -27,7 +27,7 @@ class KalorCoordinator(DataUpdateCoordinator[StoveData]):
         config_entry: KalorConfigEntry,
         client: DuepiClient,
     ) -> None:
-        """Инициализация координатора."""
+        """Initialize the coordinator."""
         super().__init__(
             hass,
             LOGGER,
@@ -38,15 +38,15 @@ class KalorCoordinator(DataUpdateCoordinator[StoveData]):
         self.client = client
 
     async def _async_setup(self) -> None:
-        """Первое подключение при инициализации."""
+        """Establish the first connection during initialization."""
         try:
             await self.client.connect()
         except DuepiConnectionError as err:
-            raise UpdateFailed(f"Ошибка подключения: {err}") from err
+            raise UpdateFailed(f"Connection error: {err}") from err
 
     async def _async_update_data(self) -> StoveData:
-        """Поллинг всех регистров печи."""
+        """Poll all stove registers."""
         try:
             return await self.client.async_get_stove_data()
         except (DuepiConnectionError, DuepiCommandError) as err:
-            raise UpdateFailed(f"Ошибка обновления данных: {err}") from err
+            raise UpdateFailed(f"Data update error: {err}") from err
