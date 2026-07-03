@@ -12,6 +12,40 @@ Control app and Home Assistant integration for **Kalor Petit** pellet stove via 
 └──────────┘                      └───────────────────┘                 └────────────┘
 ```
 
+## Screenshots
+
+| Dashboard | Telemetry | Schedule | Settings |
+|-----------|-----------|----------|----------|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Telemetry](docs/screenshots/telemetry.png) | ![Schedule](docs/screenshots/schedule.png) | ![Settings](docs/screenshots/settings.png) |
+
+_Captured with the built-in [demo mode](#demo-mode) — no live stove required._
+
+## What this demonstrates
+
+A full-stack hobby project built end-to-end from a bare protocol:
+
+- **Protocol reverse-engineering.** The Duepi EVO WiFi module has no public API. The
+  command set, ASCII framing, checksum, 32-bit status flags and handshake in
+  `src/lib/duepi-client.ts` / `custom_components/kalor/duepi_client.py` were reverse-engineered
+  by sniffing the vendor "DP Remote" app and cross-checking community notes.
+- **Full-stack Next.js.** App Router with server-side API routes proxying a stateful TCP
+  client (singleton socket, sequential command queue, auto-reconnect), a Zustand store with
+  polling and optimistic UI, and a mobile-first PWA front end (Tailwind + shadcn/ui, Recharts
+  telemetry, IndexedDB history, offline manifest).
+- **Home Assistant integration.** A native custom component exposing the stove as **10 entities**
+  (climate, sensors, binary_sensor, number, button) via a `DataUpdateCoordinator`, with a
+  config flow and translations.
+
+## Demo mode
+
+The dashboard normally requires a live stove (`DUEPI_DEVICE_CODE`). Set
+`NEXT_PUBLIC_KALOR_DEMO=1` to serve canned data from the status/command API routes so the UI
+renders offline — handy for local development and the screenshots above:
+
+```bash
+NEXT_PUBLIC_KALOR_DEMO=1 npm run dev
+```
+
 ## What's here
 
 ### `/src` — Web Dashboard (Next.js PWA)
