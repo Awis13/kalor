@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-3 p-4 max-w-md mx-auto">
-      {/* Аларм баннер */}
+      {/* Alarm banner */}
       {stove.hasAlarm && (
         <AlarmBanner
           alarmCode={stove.alarmCode}
@@ -77,14 +77,14 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Температура комнаты */}
+      {/* Room temperature */}
       <TemperatureDisplay
         roomTemp={stove.roomTemp}
         targetTemp={stove.targetTemp}
         isOn={stove.isOn}
       />
 
-      {/* Регулятор целевой температуры */}
+      {/* Target temperature dial */}
       <TemperatureDial
         value={stove.targetTemp}
         min={10}
@@ -92,7 +92,7 @@ export default function DashboardPage() {
         onChange={(temp) => sendCommand("set_temp", temp)}
       />
 
-      {/* Статус + дым + вентилятор — в одну строку */}
+      {/* Status + fumes + fan — in a single row */}
       <div className="flex gap-2">
         <StoveStatusBadge status={stove.status} statusText={stove.statusText} />
         <FumesDisplay fumesTemp={stove.fumesTemp} />
@@ -105,14 +105,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Вкл/выкл */}
+      {/* Power on/off */}
       <PowerToggle
         isOn={stove.isOn}
         onToggle={() => sendCommand(stove.isOn ? "power_off" : "power_on")}
         isSending={isSending && (pendingCommand === "power_on" || pendingCommand === "power_off")}
       />
 
-      {/* Мощность */}
+      {/* Power level */}
       <PowerSelector
         value={stove.powerLevel}
         onChange={(level) => sendCommand("set_power", level)}

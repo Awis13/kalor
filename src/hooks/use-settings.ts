@@ -1,9 +1,9 @@
-// Хук для пользовательских настроек (localStorage)
-// Тема, кастомное имя печки
+// Hooks for user preferences (localStorage): theme and custom stove name.
 
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect } from "react";
+import { useLocalStorage } from "./use-local-storage";
 
 const THEME_KEY = "kalor-theme";
 const NAME_KEY = "kalor-name";
@@ -12,45 +12,40 @@ const DEFAULT_NAME = "Kalor";
 type Theme = "dark" | "light";
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setStored] = useLocalStorage<Theme>(THEME_KEY, "dark");
 
+  // Sync the document class with the current theme (DOM side effect only).
   useEffect(() => {
-    const stored = localStorage.getItem(THEME_KEY) as Theme | null;
-    const initial = stored || "dark";
-    setThemeState(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem(THEME_KEY, t);
-    document.documentElement.classList.toggle("dark", t === "dark");
-  }, []);
+  const setTheme = useCallback((t: Theme) => setStored(t), [setStored]);
 
-  const toggle = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [theme, setTheme]);
+  const toggle = useCallback(
+    () => setStored((prev) => (prev === "dark" ? "light" : "dark")),
+    [setStored],
+  );
 
   return { theme, setTheme, toggle };
 }
 
 export function useStoveName() {
-  const [name, setNameState] = useState(DEFAULT_NAME);
+  const [name, setStored, removeStored] = useLocalStorage<string>(
+    NAME_KEY,
+    DEFAULT_NAME,
+  );
 
-  useEffect(() => {
-    const stored = localStorage.getItem(NAME_KEY);
-    if (stored) setNameState(stored);
-  }, []);
-
-  const setName = useCallback((n: string) => {
-    const trimmed = n.trim() || DEFAULT_NAME;
-    setNameState(trimmed);
-    if (trimmed === DEFAULT_NAME) {
-      localStorage.removeItem(NAME_KEY);
-    } else {
-      localStorage.setItem(NAME_KEY, trimmed);
-    }
-  }, []);
+  const setName = useCallback(
+    (n: string) => {
+      const trimmed = n.trim() || DEFAULT_NAME;
+      if (trimmed === DEFAULT_NAME) {
+        removeStored();
+      } else {
+        setStored(trimmed);
+      }
+    },
+    [setStored, removeStored],
+  );
 
   return { name, setName };
 }

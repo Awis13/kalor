@@ -12,10 +12,10 @@ export default function HistoryPage() {
     <div className="flex flex-col gap-4 p-4 max-w-md mx-auto">
       <h1 className="text-lg font-semibold">Temperature History</h1>
 
-      {/* Выбор диапазона */}
+      {/* Range selector */}
       <TimeRangePicker value={range} onChange={(v) => setRange(v as "1H" | "24H" | "7D" | "30D")} />
 
-      {/* График */}
+      {/* Chart */}
       {isLoadingHistory ? (
         <div className="flex h-64 items-center justify-center rounded-lg bg-card">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary" />

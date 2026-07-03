@@ -13,7 +13,7 @@ export function TelemetryGrid({ registers }: TelemetryGridProps) {
     <div className="grid grid-cols-2 gap-3">
       {TELEMETRY_GAUGES.map((gauge) => {
         const value = registers[gauge.registerKey] ?? 0;
-        // Приводим readonly const к GaugeConfig
+        // Cast the readonly const to GaugeConfig
         const config: GaugeConfig = {
           label: gauge.label,
           unit: gauge.unit,

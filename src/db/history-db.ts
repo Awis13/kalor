@@ -1,5 +1,5 @@
-// IndexedDB обёртка для хранения истории температуры
-// Использует idb для удобного async API
+// IndexedDB wrapper for storing temperature history
+// Uses idb for a convenient async API
 
 import { openDB, type IDBPDatabase } from "idb";
 import type { HistoryEntry } from "@/lib/agua-types";
@@ -34,13 +34,13 @@ function getDB(): Promise<IDBPDatabase<KalorDB>> {
   return dbPromise;
 }
 
-// Добавить запись в историю
+// Add an entry to the history
 export async function addReading(entry: HistoryEntry): Promise<void> {
   const db = await getDB();
   await db.add(STORE_NAME, entry);
 }
 
-// Получить записи за диапазон времени (unix ms timestamps)
+// Get entries for a time range (unix ms timestamps)
 export async function getReadings(
   from: number,
   to: number
@@ -50,7 +50,7 @@ export async function getReadings(
   return db.getAllFromIndex(STORE_NAME, "timestamp", range);
 }
 
-// Удалить записи старше указанного timestamp (unix ms)
+// Delete entries older than the given timestamp (unix ms)
 export async function clearOldReadings(olderThan: number): Promise<void> {
   const db = await getDB();
   const tx = db.transaction(STORE_NAME, "readwrite");

@@ -131,7 +131,7 @@ export function MultiChart({ data }: MultiChartProps) {
         </ResponsiveContainer>
       )}
 
-      {/* Переключатели серий */}
+      {/* Series toggles */}
       <div className="flex flex-wrap justify-center gap-2">
         {ALL_SERIES.map((key) => {
           const config = SERIES_CONFIG[key];

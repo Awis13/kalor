@@ -1,6 +1,6 @@
-// Хук для работы с печью
-// Автоматически запускает/останавливает поллинг при mount/unmount
-// Мержит optimistic state поверх реального для мгновенной реакции UI
+// Hook for working with the stove
+// Automatically starts/stops polling on mount/unmount
+// Merges optimistic state over the real state for instant UI reaction
 
 "use client";
 
@@ -25,7 +25,7 @@ export function useStove() {
     };
   }, [startPolling, stopPolling]);
 
-  // Мержим optimistic поверх реальных данных
+  // Merge optimistic over the real data
   const mergedStove = useMemo(() => {
     if (!stove) return null;
     return {

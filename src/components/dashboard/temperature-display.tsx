@@ -10,7 +10,6 @@ interface TemperatureDisplayProps {
 
 export function TemperatureDisplay({
   roomTemp,
-  targetTemp,
   isOn,
 }: TemperatureDisplayProps) {
   return (

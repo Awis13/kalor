@@ -1,5 +1,5 @@
-// Серверный синглтон Duepi клиента
-// Один экземпляр на процесс Next.js — переиспользует TCP соединение
+// Server-side singleton of the Duepi client
+// One instance per Next.js process — reuses the TCP connection
 
 import { DuepiClient } from "./duepi-client";
 

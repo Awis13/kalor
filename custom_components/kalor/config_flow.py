@@ -1,4 +1,4 @@
-"""Config flow для Kalor — настройка подключения к печи."""
+"""Config flow for Kalor — set up the connection to the stove."""
 
 from __future__ import annotations
 
@@ -20,17 +20,17 @@ class KalorConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Шаг конфигурации: ввод параметров подключения."""
+        """Configuration step: enter the connection parameters."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             device_code = user_input["device_code"]
 
-            # Уникальный ID — device_code (одна печь = одна запись)
+            # Unique ID is the device_code (one stove = one entry)
             await self.async_set_unique_id(device_code)
             self._abort_if_unique_id_configured()
 
-            # Тест подключения
+            # Test the connection
             client = DuepiClient(
                 host=user_input.get("host", DEFAULT_HOST),
                 port=user_input.get("port", DEFAULT_PORT),
@@ -42,7 +42,7 @@ class KalorConfigFlow(ConfigFlow, domain=DOMAIN):
                     data=user_input,
                 )
 
-            LOGGER.warning("Не удалось подключиться к печи: %s", device_code)
+            LOGGER.warning("Failed to connect to the stove: %s", device_code)
             errors["base"] = "cannot_connect"
 
         return self.async_show_form(

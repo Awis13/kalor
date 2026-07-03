@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDuepiClient } from "@/lib/session";
+import { isDemoMode } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,12 @@ interface CommandBody {
 export async function POST(request: Request) {
   try {
     const body: CommandBody = await request.json();
+
+    // Demo mode: accept the command without touching the relay.
+    if (isDemoMode()) {
+      return NextResponse.json({ success: true, demo: true });
+    }
+
     const client = getDuepiClient();
 
     switch (body.command) {

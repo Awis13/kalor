@@ -12,7 +12,7 @@ interface SensorGaugeProps {
   decimals?: number;
 }
 
-// SVG параметры
+// SVG parameters
 const VIEW_SIZE = 120;
 const CENTER = VIEW_SIZE / 2;
 const RADIUS = 44;
@@ -68,18 +68,18 @@ export function SensorGauge({
   const valueAngle = START_ANGLE + ratio * SWEEP;
   const color = getColorForValue(clamped, zones);
 
-  // Позиция стрелки (needle)
+  // Needle position
   const needleTip = polarToCartesian(CENTER, CENTER, RADIUS - STROKE_WIDTH / 2 - 2, valueAngle);
   const needleBase1 = polarToCartesian(CENTER, CENTER, 4, valueAngle - 90);
   const needleBase2 = polarToCartesian(CENTER, CENTER, 4, valueAngle + 90);
 
-  // Позиции для min/max лейблов
+  // Positions for the min/max labels
   const minPos = polarToCartesian(CENTER, CENTER, RADIUS + 10, START_ANGLE);
   const maxPos = polarToCartesian(CENTER, CENTER, RADIUS + 10, END_ANGLE);
 
   return (
     <svg viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`} className="w-full h-auto">
-      {/* Фоновая дуга */}
+      {/* Background arc */}
       <path
         d={describeArc(CENTER, CENTER, RADIUS, START_ANGLE, END_ANGLE)}
         fill="none"
@@ -88,7 +88,7 @@ export function SensorGauge({
         strokeLinecap="round"
       />
 
-      {/* Зоны */}
+      {/* Zones */}
       {zones.map((zone, i) => {
         const zoneStart = START_ANGLE + ((zone.min - min) / (max - min)) * SWEEP;
         const zoneEnd = START_ANGLE + ((zone.max - min) / (max - min)) * SWEEP;
@@ -105,7 +105,7 @@ export function SensorGauge({
         );
       })}
 
-      {/* Дуга значения */}
+      {/* Value arc */}
       {value > min && (
         <path
           d={describeArc(CENTER, CENTER, RADIUS, START_ANGLE, valueAngle)}
@@ -116,14 +116,14 @@ export function SensorGauge({
         />
       )}
 
-      {/* Стрелка */}
+      {/* Needle */}
       <polygon
         points={`${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${needleBase2.x},${needleBase2.y}`}
         fill={color}
       />
       <circle cx={CENTER} cy={CENTER} r={3} fill={color} />
 
-      {/* Центр: значение + единица */}
+      {/* Center: value + unit */}
       <text
         x={CENTER}
         y={CENTER + 16}
@@ -144,7 +144,7 @@ export function SensorGauge({
         {unit}
       </text>
 
-      {/* min/max лейблы */}
+      {/* min/max labels */}
       <text
         x={minPos.x}
         y={minPos.y}
@@ -164,7 +164,7 @@ export function SensorGauge({
         {max}
       </text>
 
-      {/* Лейбл снизу */}
+      {/* Bottom label */}
       <text
         x={CENTER}
         y={VIEW_SIZE - 4}

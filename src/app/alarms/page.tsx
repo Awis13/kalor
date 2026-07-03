@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { AlertTriangle, Bell, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ERROR_CODES } from "@/lib/duepi-constants";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface AlarmEntry {
   code: number;
@@ -13,21 +13,6 @@ interface AlarmEntry {
 }
 
 const STORAGE_KEY = "kalor-alarms";
-
-function loadAlarms(): AlarmEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function clearAlarms(): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(STORAGE_KEY);
-}
 
 function formatTimestamp(ts: number): string {
   const d = new Date(ts);
@@ -40,15 +25,13 @@ function formatTimestamp(ts: number): string {
 }
 
 export default function AlarmsPage() {
-  const [alarms, setAlarms] = useState<AlarmEntry[]>([]);
-
-  useEffect(() => {
-    setAlarms(loadAlarms());
-  }, []);
+  const [alarms, , clearAlarms] = useLocalStorage<AlarmEntry[]>(
+    STORAGE_KEY,
+    [],
+  );
 
   const handleClear = () => {
     clearAlarms();
-    setAlarms([]);
   };
 
   return (
